@@ -1,0 +1,15 @@
+/target
+/lib
+/classes
+/checkouts
+pom.xml
+*.iml
+*.jar
+*.class
+.*.swp
+/.lein-*
+profiles.clj
+/.env
+.nrepl-port
+.idea
+/log
