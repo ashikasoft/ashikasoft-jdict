@@ -166,10 +166,10 @@
 (defn lookup
   "Look up a word from the dictionary. The dictionary should be initialized with load-data-dir."
   [dict word]
-  (let [word (string/lower-case (string/trim word))
-        hiragana (to-hiragana dict word)
-        katakana (to-katakana dict word)]
-    (when-not (string/blank? word)
+  (when-not (string/blank? word)
+    (let [word (string/lower-case (string/trim word))
+          hiragana (to-hiragana dict word)
+          katakana (to-katakana dict word)]
       (into []
         (concat
           (when (roman? word) (lookup-wnet dict word))
