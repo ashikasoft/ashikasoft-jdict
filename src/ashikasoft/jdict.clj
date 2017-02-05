@@ -1,4 +1,5 @@
-(ns ashikasoft.jdict
+(ns ^{:doc "Ashikasoft Japanese dictionary library" :author "Kean Santos"}
+ ashikasoft.jdict
   (:require [clojure.java.io :as io]
             [clojure.string :as string]))
 

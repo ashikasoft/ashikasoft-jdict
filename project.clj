@@ -1,4 +1,4 @@
-(defproject ashikasoft/jdict "0.1.0-SNAPSHOT"
+(defproject ashikasoft/jdict "1.0.0"
   :description "Clojure implementation of Ashikasoft Japanese Dictionary"
   :url "http://www.ashikasoft.com"
   :license {:name "Eclipse Public License"
