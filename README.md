@@ -1,13 +1,13 @@
 # ashikasoft/jdict
 
-Clojure implementation of Ashikasoft Japanese Dictionary
+Clojure implementation of Ashikasoft Japanese Dictionary, running http://www.ashikasoft.com
 
 ## Usage
 
 Load the data directory and then look up the word (Roman, Kana or Kanji)
 
-  (def dict (load-data-dir "~/japanese_dict/assets"))
-  (lookup dict "tsukue")
+    (def dict (load-data-dir "~/japanese_dict/assets"))
+    (lookup dict "tsukue")
 
 ## License
 
