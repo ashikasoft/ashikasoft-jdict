@@ -1,5 +1,7 @@
 # ashikasoft/jdict
 
+[![Clojars Project](https://img.shields.io/clojars/v/ashikasoft/jdict.svg)](https://clojars.org/ashikasoft/jdict)
+
 Clojure implementation of Ashikasoft Japanese Dictionary, running http://www.ashikasoft.com
 
 ## Usage
