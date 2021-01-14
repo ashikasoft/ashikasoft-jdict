@@ -2,6 +2,8 @@
   (:require [clojure.test :refer :all]
             [ashikasoft.jdict :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest test-roman?
+  (testing "Anything with roman characters or numerals is roman."
+    (is (roman? "Parisian")))
+  (testing "If there are no roman characters, it isn't roman."
+    (is (not (roman? "日本人")))))

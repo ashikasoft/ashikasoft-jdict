@@ -3,6 +3,13 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]))
 
+;; TODO - split into clj, cljs and cljc.
+;; The cross-language implementation is the functional core,
+;; while the specific implementations are the imperative shells.
+;; In clojure -- uses java io to read resource files
+;; In clojurescript -- will use ajax/GET to retrieve resource files.
+;; The Cljc package will contain the actual logic.
+
 (def max-result-count 200)
 (def roman-regex #"^\s*[a-zA-Z0-9 ]+\s*$")
 
@@ -16,16 +23,20 @@
   (reduce #(string/replace %1 (first %2) (second %2)) s kvs))
 
 (defn to-hiragana
-  "Convert to katakana"
-  [dict word]
-  (-> (map-translate word (get-in dict [:kana-map :kh]))
-      (map-translate (get-in dict [:kana-map :rh]))))
+  "Convert to hiragana"
+  [{kana-map :kana-map} word]
+  (let [{:keys [kh rh]} kana-map]
+    (-> word
+        (map-translate kh)
+        (map-translate rh))))
 
 (defn to-katakana
   "Convert to katakana"
-  [dict word]
-  (-> (map-translate word (get-in dict [:kana-map :hk]))
-      (map-translate (get-in dict [:kana-map :rk]))))
+  [{kana-map :kana-map} word]
+  (let [{:keys [hk rk]} kana-map]
+    (-> word
+        (map-translate hk)
+        (map-translate rk))))
 
 (defn read-resource-file
   "Given a directory and a filename, pass a lazy sequence to the given function."
