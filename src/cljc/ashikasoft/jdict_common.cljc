@@ -62,7 +62,6 @@
 (defn load-kana-map
   "Load the roman to kana conversion map"
   [res-loader]
-  ;; TODO implement kana map
   (res-loader "kana_map.csv" load-kana-map-fn))
 
 (defn load-index-tree
