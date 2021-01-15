@@ -55,9 +55,9 @@
   [lines]
   (let [initial-map {:hk [] :rk [] :kh [] :rh []}]
     (->> lines
-      (filter #(not (re-matches #"^\s*#.*$" %)))
-      (map #(string/split % #","))
-      (reduce reduce-kana-map initial-map))))
+         (remove #(or (string/blank? %) (string/includes? % "#")))
+         (map #(string/split % #","))
+         (reduce reduce-kana-map initial-map))))
 
 (defn load-kana-map
   "Load the roman to kana conversion map"
