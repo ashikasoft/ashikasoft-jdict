@@ -1,14 +1,11 @@
-(ns ^{:doc "Ashikasoft Japanese dictionary library" :author "Kean Santos"}
- ashikasoft.jdict
-  (:require [clojure.java.io :as io]
-            [clojure.string :as string]))
+(ns ashikasoft.jdict-common
+  (:require 
+   [clojure.string :as string]))
 
-;; TODO - split into clj, cljs and cljc.
 ;; The cross-language implementation is the functional core,
 ;; while the specific implementations are the imperative shells.
 ;; In clojure -- uses java io to read resource files
 ;; In clojurescript -- will use ajax/GET to retrieve resource files.
-;; The Cljc package will contain the actual logic.
 
 (def max-result-count 200)
 (def roman-regex #"^\s*[a-zA-Z0-9 ]+\s*$")
@@ -38,12 +35,6 @@
         (map-translate hk)
         (map-translate rk))))
 
-(defn read-resource-file
-  "Given a directory and a filename, pass a lazy sequence to the given function."
-  [dir filename read-fn]
-  (with-open [r (io/reader (io/file dir filename))]
-    (read-fn (line-seq r))))
-
 (defn reduce-roman-kana-map
   "Add multiple roman keys to the kana map"
   [m h k r]
@@ -70,9 +61,9 @@
 
 (defn load-kana-map
   "Load the roman to kana conversion map"
-  [dir]
+  [res-loader]
   ;; TODO implement kana map
-  (read-resource-file dir "kana_map.csv" load-kana-map-fn))
+  (res-loader "kana_map.csv" load-kana-map-fn))
 
 (defn load-index-tree
   "Load the given index file data into a sorted map.
@@ -85,28 +76,10 @@
       (reduce add-index-map (java.util.TreeMap.)))))
 
 (defn load-index
-  "Given a directory and a file pattern, get the contents of an index file
+  "Given a resource loader and a file pattern, get the contents of an index file
   as a sequence of lines."
-  [dir filename-part]
-  (read-resource-file dir (str filename-part ".utf8_csort_index") load-index-tree))
-
-
-(defn load-data-dir
-  "Create a dictionary instance using the given data directory.
-  This function loads indices into memory as a structure of maps.
-  The data directory is organised as follows:
-  * Words have definition ids, and definition ids are grouped into subfiles.
-  * Each index contains a mapping between words and subfiles.
-  * Definition ids from subfiles are used to look up defitions in definition files.
-  Separate index files are provided for English (WNet), English (JMDict), Kana and Kanji.
-  Also, WNet files contain defitions directly in the subfile (so separate definition file)."
-  [dir]
-  { :data-dir dir
-    :kana-map (load-kana-map dir)
-    :en-wnet (load-index dir "wnet_ej")
-    :en-jmdict (load-index dir "eng_list")
-    :kana-jmdict (load-index dir "kana_list")
-    :kanji-jmdict (load-index dir "kanji_list")})
+  [res-loader filename-part]
+  (res-loader (str filename-part ".utf8_csort_index") load-index-tree))
 
 (defn get-subfilenames
   "Given a search word, get a list of files from the sorted map.
@@ -127,14 +100,14 @@
 
 (defn get-def-data
     "Given a definition id, return the definition data."
-    [dir id]
+    [res-loader id]
     (let [id-part (subs id 0 3)
           filename (str "defs_list.utf8_" id-part)
           get-fn (fn [lines] (->> lines
                                (filter #(string/starts-with? % id))
                                (map #(remove-delims (string/replace-first % #"[0-9]+" "")))
                                (into (sorted-set))))]
-      (read-resource-file dir filename get-fn)))
+      (res-loader filename get-fn)))
 
 (defn filter-subfile-data
   "Given a search word and a subfile, filter subfile data using the word and delimiter"
@@ -149,25 +122,23 @@
 
 (defn get-subfile-entries
   "Read the subfile and extract ids matching the word"
-  [dir subfile-name word delim]
-  (read-resource-file dir subfile-name #(filter-subfile-data % word delim)))
+  [res-loader subfile-name word delim]
+  (res-loader subfile-name #(filter-subfile-data % word delim)))
 
 (defn lookup-subfile-entries
   "Look up a word using the given dictionary, keys and delimiter."
-  [dict word dict-keys delim]
-  (let [dir (:data-dir dict)
-        subfile-names (mapcat #(get-subfilenames (% dict) word) dict-keys)]
+  [{:keys [res-loader] :as dict} word dict-keys delim]
+  (let [subfile-names (mapcat #(get-subfilenames (% dict) word) dict-keys)]
     (take max-result-count
       (into (sorted-set)
-        (mapcat #(get-subfile-entries dir % word delim))
+        (mapcat #(get-subfile-entries res-loader % word delim))
         subfile-names))))
 
 (defn lookup-jmdict
   "Look up a word from a dictionary in the JMDict format."
-  [dict word & dict-keys]
-  (let [dir (:data-dir dict)
-        subfile-entries (lookup-subfile-entries dict word dict-keys #"#")]
-    (mapcat #(get-def-data dir %) subfile-entries)))
+  [{:keys [res-loader] :as dict} word & dict-keys]
+  (let [subfile-entries (lookup-subfile-entries dict word dict-keys #"#")]
+    (mapcat #(get-def-data res-loader %) subfile-entries)))
 
 (defn lookup-wnet
   "Look up a word from the dictionary using the WNet format."
@@ -175,8 +146,26 @@
   (let [subfile-entries (lookup-subfile-entries dict word [:en-wnet] nil)]
     (map remove-delims subfile-entries)))
 
+
+(defn create-dict
+  "Create a dictionary instance using the given data resource loader.
+  This function loads indices into memory as a structure of maps.
+  The data directory is organised as follows:
+  * Words have definition ids, and definition ids are grouped into subfiles.
+  * Each index contains a mapping between words and subfiles.
+  * Definition ids from subfiles are used to look up defitions in definition files.
+  Separate index files are provided for English (WNet), English (JMDict), Kana and Kanji.
+  Also, WNet files contain defitions directly in the subfile (so separate definition file)."
+  [res-loader]
+  { :res-loader res-loader
+    :kana-map (load-kana-map res-loader)
+    :en-wnet (load-index res-loader "wnet_ej")
+    :en-jmdict (load-index res-loader "eng_list")
+    :kana-jmdict (load-index res-loader "kana_list")
+    :kanji-jmdict (load-index res-loader "kanji_list")})
+
 (defn lookup
-  "Look up a word from the dictionary. The dictionary should be initialized with load-data-dir."
+  "Look up a word from the dictionary."
   [dict word]
   (when-not (string/blank? word)
     (let [word (string/lower-case (string/trim word))

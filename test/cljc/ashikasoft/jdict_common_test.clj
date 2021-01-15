@@ -1,6 +1,7 @@
-(ns ashikasoft.jdict-test
-  (:require [clojure.test :refer :all]
-            [ashikasoft.jdict :refer :all]))
+(ns ashikasoft.jdict-common-test
+  (:require
+   [clojure.test :refer [deftest is testing]]
+   [ashikasoft.jdict-common :refer :all]))
 
 (deftest test-roman?
   (testing "Anything with roman characters or numerals is roman."
