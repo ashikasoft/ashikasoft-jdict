@@ -29,3 +29,12 @@
     (testing "Translate a roman word into katakana."
       (is (= "インターナショナル スクール"
              (to-katakana dict "inta-nashonaru suku-ru"))))))
+
+#_
+(deftest test-index-subfiles
+  (testing "Loading a fie creates a top-level index."
+    (let [top-index (load-index res-loader "test_top_index")]
+      (is nil))
+    (testing "Searching a top-level index returns a filename for a dictionary subset."
+      (let [result :dummy #_ (lookup-subfile-entries )]
+        (is nil)))))

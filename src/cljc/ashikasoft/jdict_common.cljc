@@ -1,5 +1,6 @@
 (ns ashikasoft.jdict-common
   (:require 
+   [clojure.data.avl :as avl]
    [clojure.string :as string]))
 
 ;; The cross-language implementation is the functional core,
