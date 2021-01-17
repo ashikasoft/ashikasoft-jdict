@@ -30,11 +30,13 @@
       (is (= "インターナショナル スクール"
              (to-katakana dict "inta-nashonaru suku-ru"))))))
 
-#_
 (deftest test-index-subfiles
-  (testing "Loading a fie creates a top-level index."
-    (let [top-index (load-index res-loader "test_top_index")]
-      (is nil))
-    (testing "Searching a top-level index returns a filename for a dictionary subset."
-      (let [result :dummy #_ (lookup-subfile-entries )]
-        (is nil)))))
+  (testing "Loading a top-level index returna a map of lead entries to sub files."
+    (let [top-index (load-index res-loader "test_dict")]
+      (is (= ["aa" "bb" "cc"] (keys top-index)))
+      ;; TODO set up test file data and fix broken test
+      #_
+      (testing "Searching a top-level index returns a filename for a dictionary subset."
+        (let [test-dict {:test-dict top-index}
+              result (lookup-subfile-entries test-dict "b1" [:test-dict] nil)]
+          (is (= :??? result)))))))

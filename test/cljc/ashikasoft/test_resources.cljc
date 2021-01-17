@@ -1,7 +1,11 @@
 (ns ashikasoft.test-resources)
 
 (def dict-data
-  {
+  {"test_dict.utf8_csort_index"
+   "aa#ああ#test_dict.utf8_csort_1
+bb#ババ#test_dict.utf8_csort_2
+cc#シー#test_dict.utf8_csort_3
+",
    "kana_map.csv"
    "
 # K,,,
