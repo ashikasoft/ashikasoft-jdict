@@ -70,10 +70,10 @@
   The map contains sorted keys corresponding to subfile names
   (see get-subfilenames)."
   [index-data]
-  (let [add-index-map #(do (.put %1 (first %2) (last %2)) %1)]
+  (let [add-index-map #(assoc %1 (first %2) (last %2))]
     (->> index-data
       (map #(string/split % #"#"))
-      (reduce add-index-map (java.util.TreeMap.)))))
+      (reduce add-index-map (avl/sorted-map)))))
 
 (defn load-index
   "Given a resource loader and a file pattern, get the contents of an index file
@@ -85,13 +85,12 @@
   "Given a search word, get a list of files from the sorted map.
   A subfile is a file containing a list of candidate definition ids for a given word."
   [index-map word]
-  (loop [entry (.floorEntry index-map word)
+  (loop [entry (avl/nearest index-map <= word)
           result []]
-    (let [key (when entry (.getKey entry))
-          value (when key (.getValue entry))
+    (let [[key value] entry
           updated (if value (conj result value) result)]
       (if (and key (or (string/starts-with? key word) (compare key word)))
-        (recur (.higherEntry index-map key) updated)
+        (recur (avl/nearest index-map > key) updated)
         result))))
 
 (defn remove-delims
