@@ -6,7 +6,11 @@
 bb#ババ#test_dict.utf8_csort_2
 cc#シー#test_dict.utf8_csort_3
 ",
-   "kana_map.csv"
+   "test_dict.utf8_csort_1" "aa#ああ",
+   "test_dict.utf8_csort_2" "bb#ババ
+bc#ビーシー",
+   "test_dict.utf8_csort_3" "cc#シー ",
+ "kana_map.csv"
    "
 # K,,,
 # kkya,kka,kya,

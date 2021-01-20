@@ -30,13 +30,21 @@
       (is (= "インターナショナル スクール"
              (to-katakana dict "inta-nashonaru suku-ru"))))))
 
-(deftest test-index-subfiles
+(deftest test-lookup-single-dictionary
   (testing "Loading a top-level index returna a map of lead entries to sub files."
-    (let [top-index (load-index res-loader "test_dict")]
+    (let [top-index (load-index res-loader "test_dict")
+          test-dict {:res-loader res-loader
+                     :test-dict top-index}]
       (is (= ["aa" "bb" "cc"] (keys top-index)))
-      ;; TODO set up test file data and fix broken test
-      #_
-      (testing "Searching a top-level index returns a filename for a dictionary subset."
-        (let [test-dict {:test-dict top-index}
-              result (lookup-subfile-entries test-dict "b1" [:test-dict] nil)]
-          (is (= :??? result)))))))
+      (testing "Searching an exact match returns a result."
+        (let [word "bc"
+              result (lookup-subfile-entries test-dict word [:test-dict] nil)]
+          (is (= ["bc#ビーシー"] result))))
+      (testing "Searching an partial match returns multiple results."
+        (let [word "b"
+              result (lookup-subfile-entries test-dict word [:test-dict] nil)]
+          (is (= ["bb#ババ" "bc#ビーシー"] result))))
+      (testing "Searching a missing term returns an empty result."
+        (let [word "x"
+              result (lookup-subfile-entries test-dict word [:test-dict] nil)]
+          (is (= [] result)))))))
