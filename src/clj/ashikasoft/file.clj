@@ -11,10 +11,10 @@
 (defn read-resource-file
   "Given a directory and a filename, read line by line using the given function."
   [dir filename read-fn]
-  (read-lines (io/file (io/resource filename))))
+  (read-lines (io/file (io/resource filename)) read-fn))
 
 (defn read-dir-file
   "Given a directory and a filename, read line by line using the given function."
   [dir filename read-fn]
-  (read-lines (io/file dir filename)))
+  (read-lines (io/file dir filename) read-fn))
 
