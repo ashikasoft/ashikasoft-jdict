@@ -4,17 +4,17 @@
 
 (defn read-lines
   "Read a file line by line, using the given function."
-  [file read-fn]
+  [read-fn file]
   (with-open [r (io/reader file)]
     (read-fn (line-seq r))))
 
 (defn read-resource-file
   "Given a directory and a filename, read line by line using the given function."
-  [dir filename read-fn]
-  (read-lines (io/file (io/resource filename)) read-fn))
+  [read-fn filename]
+  (read-lines read-fn (io/file (io/resource filename))))
 
 (defn read-dir-file
   "Given a directory and a filename, read line by line using the given function."
-  [dir filename read-fn]
-  (read-lines (io/file dir filename) read-fn))
+  [read-fn dir filename]
+  (read-lines read-fn (io/file dir filename)))
 

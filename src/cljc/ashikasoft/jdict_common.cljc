@@ -63,7 +63,7 @@
 (defn load-kana-map
   "Load the roman to kana conversion map"
   [res-loader]
-  (res-loader "kana_map.csv" load-kana-map-fn))
+  (res-loader load-kana-map-fn "kana_map.csv"))
 
 (defn load-index-tree
   "Load the given index file data into a sorted map.
@@ -79,7 +79,7 @@
   "Given a resource loader and a file pattern, get the contents of an index file
   as a sequence of lines."
   [res-loader filename-part]
-  (res-loader (str filename-part ".utf8_csort_index") load-index-tree))
+  (res-loader load-index-tree (str filename-part ".utf8_csort_index")))
 
 (defn get-subfilenames
   "Given a search word, get a list of files from the sorted map.
@@ -106,7 +106,7 @@
                                (filter #(string/starts-with? % id))
                                (map #(remove-delims (string/replace-first % #"[0-9]+" "")))
                                (into (sorted-set))))]
-      (res-loader filename get-fn)))
+      (res-loader get-fn filename)))
 
 (defn filter-subfile-data
   "Given a search word and a subfile, filter subfile data using the word and delimiter"
@@ -122,7 +122,7 @@
 (defn get-subfile-entries
   "Read the subfile and extract ids matching the word"
   [res-loader subfile-name word delim]
-  (res-loader subfile-name #(filter-subfile-data % word delim)))
+  (res-loader #(filter-subfile-data % word delim) subfile-name))
 
 (defn lookup-subfile-entries
   "Look up a word using the given dictionary, keys and delimiter."

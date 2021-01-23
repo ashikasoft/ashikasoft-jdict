@@ -5,7 +5,7 @@
 (defn load-data-dir
   "Create a dictionary instance using the given data directory. "
   [dir]
-  (let [res-loader (partial file/read-dir-file dir)]
+  (let [res-loader (fn [read-fn file] (file/read-dir-file read-fn dir file))]
     (common/create-dict res-loader)))
 
 (defn lookup

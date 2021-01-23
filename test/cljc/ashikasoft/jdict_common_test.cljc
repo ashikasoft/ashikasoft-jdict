@@ -6,7 +6,7 @@
    [ashikasoft.jdict-common :refer :all]))
 
 
-(defn res-loader [filename load-fn]
+(defn res-loader [load-fn filename]
   (as-> filename $
       (get resources/dict-data $)
       (string/split $ #"\n")
