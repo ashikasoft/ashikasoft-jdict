@@ -33,9 +33,13 @@
   Separate index files are provided for English (WNet), English (JMDict), Kana and Kanji.
   Also, WNet files contain defitions directly in the subfile (so separate definition file)."
   [state dir]
-  (let [state-loader (fn [store-keys read-fn file]
-                           (async-state-loader state store-keys read-fn dir file))]
-    (swap! state assoc :state-loader state-loader)
+  (let [state-loader
+        (fn [store-keys read-fn file]
+          (async-state-loader state store-keys read-fn dir file))
+        state-append-loader
+        (fn [store-keys read-fn file]
+          (async-state-append-loader state store-keys read-fn dir file))]
+    (swap! state assoc :state-loader state-loader :state-append-loader state-append-loader)
     (common/load-kana-map (partial state-loader [:dict :kana-map]))
     (common/load-index (partial state-loader [:dict :en-wnet]) "wnet_ej")
     (common/load-index (partial state-loader [:dict :en-wnet]) "wnet_ej")
