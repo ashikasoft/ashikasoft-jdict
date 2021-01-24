@@ -51,14 +51,12 @@
     (let [word (string/lower-case (string/trim word))
           hiragana (common/to-hiragana dict word)
           katakana (common/to-katakana dict word)]
-      (into []
-        (concat
-          (when (common/roman? word) (common/lookup-wnet dict word))
-          (into (sorted-set) ;; JMDict entries should be de-duplicated
-            (concat
-              (if (common/roman? word)
-                (common/lookup-jmdict dict word :en-jmdict)
-                (common/lookup-jmdict dict word :kana-jmdict :kanji-jmdict))
-              (when hiragana (common/lookup-jmdict dict hiragana :kana-jmdict :kanji-jmdict))
-              (when (and katakana (not= katakana hiragana))
-                (common/lookup-jmdict dict katakana :kana-jmdict :kanji-jmdict)))))))))
+      (when (common/roman? word)
+        (common/lookup-wnet dict word))
+      (if (common/roman? word)
+        (common/lookup-jmdict dict word :en-jmdict)
+        (common/lookup-jmdict dict word :kana-jmdict :kanji-jmdict))
+      (when hiragana
+        (common/lookup-jmdict dict hiragana :kana-jmdict :kanji-jmdict))
+      (when (and katakana (not= katakana hiragana))
+        (common/lookup-jmdict dict katakana :kana-jmdict :kanji-jmdict)))))
