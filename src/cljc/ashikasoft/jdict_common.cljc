@@ -126,12 +126,17 @@
 
 (defn lookup-subfile-entries
   "Look up a word using the given dictionary, keys and delimiter."
-  [{:keys [res-loader] :as dict} word dict-keys delim]
-  (let [subfile-names (mapcat #(get-subfilenames (% dict) word) dict-keys)]
-    (take max-result-count
-      (into (sorted-set)
-        (mapcat #(get-subfile-entries res-loader % word delim))
-        subfile-names))))
+  [{:keys [res-loader state-append-loader]
+    :as dict} word dict-keys delim]
+  (if res-loader
+    (let [subfile-names (mapcat #(get-subfilenames (% dict) word) dict-keys)]
+      (take max-result-count
+            (into (sorted-set)
+                  (mapcat #(get-subfile-entries res-loader % word delim))
+                  subfile-names)))
+    ;; state-append-loader
+    
+    ))
 
 (defn lookup-jmdict
   "Look up a word from a dictionary in the JMDict format."
@@ -142,8 +147,7 @@
 (defn lookup-wnet
   "Look up a word from the dictionary using the WNet format."
   [dict word]
-  (let [subfile-entries (lookup-subfile-entries dict word [:en-wnet] nil)]
-    (map remove-delims subfile-entries)))
+  (lookup-subfile-entries dict word [:en-wnet] nil))
 
 
 (defn create-dict
