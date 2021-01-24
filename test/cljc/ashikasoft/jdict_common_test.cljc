@@ -39,11 +39,11 @@
       (testing "Searching an exact match returns a result."
         (let [word "bc"
               result (common/lookup-subfile-entries test-dict word [:test-dict] nil)]
-          (is (= ["bc#ビーシー"] result))))
+          (is (= ["bc ビーシー"] result))))
       (testing "Searching an partial match returns multiple results."
         (let [word "b"
               result (common/lookup-subfile-entries test-dict word [:test-dict] nil)]
-          (is (= ["bb#ババ" "bc#ビーシー"] result))))
+          (is (= ["bb ババ" "bc ビーシー"] result))))
       (testing "Searching a missing term returns an empty result."
         (let [word "x"
               result (common/lookup-subfile-entries test-dict word [:test-dict] nil)]

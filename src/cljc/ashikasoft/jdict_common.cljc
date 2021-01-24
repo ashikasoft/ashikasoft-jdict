@@ -116,7 +116,7 @@
                   identity)]
     (->> subfile-data
       (filter #(string/starts-with? % word))
-      (map map-fn)
+      (map (comp remove-delims map-fn))
       (reduce conj (sorted-set)))))
 
 (defn get-subfile-entries

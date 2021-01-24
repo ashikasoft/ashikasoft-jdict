@@ -18,6 +18,11 @@
         store-fn #(swap! state assoc-in store-keys %1)]
     (async-loader error-fn store-fn read-lines-fn (str dir "/" file))))
 
+(defn async-state-append-loader [state store-keys read-lines-fn dir file]
+  (let [error-fn #(swap! state assoc :error %)
+        store-fn #(swap! state update-in store-keys (fnil into []) %1)]
+    (async-loader error-fn store-fn read-lines-fn (str dir "/" file))))
+
 (defn async-create-dict
   "Create a dictionary instance using the given data resource loader.
   This function loads indices into memory as a structure of maps.
