@@ -11,7 +11,7 @@
 
 (defn load-lines-handler [read-lines-fn body]
   (let [lines (string/split body #"\n")]
-    (into [] (map read-lines-fn) lines)))
+    (read-lines-fn lines)))
 
 (defn async-dir-loader [read-lines-fn dir file]
   (-> (async-get (str dir "/" file))
@@ -32,7 +32,7 @@
                                (.catch #(swap! state assoc :error %))))
         store-in
         (fn [keyvec val] (swap! state assoc-in keyvec val))]
-    (swap! state assoc :async-loader async-loader)
+    (swap! state assoc-in [:dict :async-loader] async-loader)
     (-> (common/load-kana-map async-loader)
         (.then (partial store-in [:dict :kana-map])))
     (-> (common/load-index async-loader "wnet_ej")
