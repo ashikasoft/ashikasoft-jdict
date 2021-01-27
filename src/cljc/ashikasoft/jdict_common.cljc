@@ -124,6 +124,10 @@
   [loader subfile-name word delim]
   (loader #(filter-subfile-data % word delim) subfile-name))
 
+
+(defn reduce-into-sorted-set [entries]
+  (reduce into (sorted-set) (seq entries)))
+
 (defn lookup-subfile-entries
   "Look up a word using the given dictionary, keys and delimiter."
   [{:keys [res-loader async-loader]
@@ -136,11 +140,11 @@
                   subfile-names))
       ;; async-loader - return a vector of promises.
       #?(:cljs
-         (->> subfile-names
-              (reduce #(conj %1 (get-subfile-entries async-loader %2 word delim)) [])
-             (clj->js)
-             (.all js/Promise)))
-      )))
+         (as-> subfile-names $
+           (reduce #(conj %1 (get-subfile-entries async-loader %2 word delim)) [] $)
+           (clj->js $)
+           (.all js/Promise $)
+           (.then $ reduce-into-sorted-set))))))
 
 (defn lookup-jmdict
   "Look up a word from a dictionary in the JMDict format."
@@ -152,7 +156,9 @@
       #?(:cljs
          (-> subfile-entries
              (.then (fn [files]
-                      (reduce #(conj %1 (get-def-data async-loader %2)) [] files))))))))
+                      (reduce #(conj %1 (get-def-data async-loader %2)) [] files)))
+             (.then #(.all js/Promise (clj->js %)))
+             (.then reduce-into-sorted-set))))))
 
 (defn lookup-wnet
   "Look up a word from the dictionary using the WNet format."
