@@ -121,28 +121,38 @@
 
 (defn get-subfile-entries
   "Read the subfile and extract ids matching the word"
-  [res-loader subfile-name word delim]
-  (res-loader #(filter-subfile-data % word delim) subfile-name))
+  [loader subfile-name word delim]
+  (loader #(filter-subfile-data % word delim) subfile-name))
 
 (defn lookup-subfile-entries
   "Look up a word using the given dictionary, keys and delimiter."
-  [{:keys [res-loader state-append-loader]
+  [{:keys [res-loader async-loader]
     :as dict} word dict-keys delim]
-  (if res-loader
-    (let [subfile-names (mapcat #(get-subfilenames (% dict) word) dict-keys)]
+  (let [subfile-names (mapcat #(get-subfilenames (% dict) word) dict-keys)]
+    (if res-loader
       (take max-result-count
             (into (sorted-set)
                   (mapcat #(get-subfile-entries res-loader % word delim))
-                  subfile-names)))
-    ;; state-append-loader
-    
-    ))
+                  subfile-names))
+      ;; async-loader - return a vector of promises.
+      #?(:cljs
+         (->> subfile-names
+              (reduce #(conj %1 (get-subfile-entries async-loader %2 word delim)) [])
+             (clj->js)
+             (.all js/Promise)))
+      )))
 
 (defn lookup-jmdict
   "Look up a word from a dictionary in the JMDict format."
-  [{:keys [res-loader] :as dict} word & dict-keys]
+  [{:keys [res-loader async-loader] :as dict} word & dict-keys]
   (let [subfile-entries (lookup-subfile-entries dict word dict-keys #"#")]
-    (mapcat #(get-def-data res-loader %) subfile-entries)))
+    (if res-loader
+      (mapcat #(get-def-data res-loader %) subfile-entries)
+      ;; async loader
+      #?(:cljs
+         (-> subfile-entries
+             (.then (fn [files]
+                      (reduce #(conj %1 (get-def-data async-loader %2)) [] files))))))))
 
 (defn lookup-wnet
   "Look up a word from the dictionary using the WNet format."
