@@ -10,8 +10,8 @@
 
 (defn read-resource-file
   "Given a directory and a filename, read line by line using the given function."
-  [read-fn filename]
-  (read-lines read-fn (io/file (io/resource filename))))
+  [read-fn path]
+  (read-lines read-fn (-> (clojure.lang.RT/baseLoader) (.getResourceAsStream path))))
 
 (defn read-dir-file
   "Given a directory and a filename, read line by line using the given function."

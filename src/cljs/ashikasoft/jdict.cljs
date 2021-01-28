@@ -56,7 +56,7 @@
   The dictionary should be initialized with load-data-dir."
   [state dict word]
   (when-not (string/blank? word)
-    (let [append-results #(swap! state update :results (fnil into [])%)
+    (let [append-results #(swap! state update :results (fnil into (sorted-set)) (map str %))
           word (string/lower-case (string/trim word))
           hiragana (common/to-hiragana dict word)
           katakana (common/to-katakana dict word)]
